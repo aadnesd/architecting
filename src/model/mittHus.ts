@@ -28,6 +28,7 @@ const WING_SLOPE = Math.tan((25 * Math.PI) / 180);
 const EXT = 'cladding-yellow';
 const INT = 'paint-white';
 const BASE_EXT = 'render-white';
+const KITCHEN_WALL = 'paint-linen';
 
 type P = [number, number];
 const pt = ([x, y]: P): Vec2 => ({ x, y });
@@ -120,8 +121,8 @@ export function mittHusTemplate(): Project {
   // ───────────────────────── 1. etasje (main floor) ─────────────────────────
   {
     const L = et1.id;
-    const west = ext(L, [10, 779], [10, 10]);
-    const north = ext(L, [10, 10], [583, 10]);
+    const west = ext(L, [10, 779], [10, 10], { rightMaterial: KITCHEN_WALL });
+    const north = ext(L, [10, 10], [583, 10], { rightMaterial: KITCHEN_WALL });
     // The entrance wing has a 25° lean-to roof rising from its north wall towards the main house.
     const wingH = (y: number) => Math.round(240 + (y + 259) * SY * WING_SLOPE);
     const wingWest = ext(L, [583, 10], [583, -249], { height: wingH(10), heightEnd: wingH(-249) });
@@ -130,12 +131,12 @@ export function mittHusTemplate(): Project {
     ext(L, [880, 0], [880, 779]);
     const south = ext(L, [880, 779], [10, 779]);
 
-    const kitchenGang = wall(L, [583, 10], [583, 337], { thickness: 12 });
+    const kitchenGang = wall(L, [583, 10], [583, 337], { thickness: 12, rightMaterial: KITCHEN_WALL });
     const wcWall = wall(L, [758, -249], [758, -48]);
     wall(L, [758, -48], [880, -48], { leftMaterial: 'wall-tile-20' });
     wall(L, [758, -48], [758, 58]);
     const underStairs = wall(L, [758, 170], [758, 337]);
-    wall(L, [300, 337], [880, 337], { thickness: 12 });
+    wall(L, [300, 337], [880, 337], { thickness: 12, leftMaterial: KITCHEN_WALL });
 
     open(north, 'window', 432, { width: 90, height: 110, sill: 105 });
     open(west, 'doubleWindow', 611, { width: 150, height: 130, sill: 80 });
@@ -151,26 +152,13 @@ export function mittHusTemplate(): Project {
     open(underStairs, 'door', 120, { width: 60, flipSide: true });
 
     const room = (name: string, pts: P[], floor: string) => p.rooms.push(createRoom(L, pts.map(pt), { name, floorMaterial: floor }));
-    room('Kjøkken', [[306, 20], [577, 20], [577, 331], [306, 331]], 'tile-60-light');
-    room('Stue / spisestue', [[20, 20], [306, 20], [306, 343], [870, 343], [870, 769], [20, 769]], 'oak-planks');
+    // The kitchen now runs west to the north-west window; one oak floor through kitchen and living room
+    room('Kjøkken', [[20, 20], [577, 20], [577, 331], [20, 331]], 'oak-planks');
+    room('Stue / spisestue', [[20, 331], [306, 331], [306, 343], [870, 343], [870, 769], [20, 769]], 'oak-planks');
     room('Entré / gang', [[589, -239], [752, -239], [752, 331], [589, 331]], 'tile-60-dark');
     room('WC', [[764, -239], [870, -239], [870, -54], [764, -54]], 'hex-tile');
 
-    // Kitchen: north run (cooktop at the open end), south run with double sink.
-    const n = { finish: 'white-matte', accent: 'oak' };
-    let x = 310;
-    for (const [kind, w] of [['cooktopCabinet', 80], ['drawerCabinet', 60], ['baseCabinet', 67], ['baseCabinet', 60]] as const) {
-      item(L, kind, x + w / 2, 20 + 30, { ...n, width: w });
-      x += w;
-    }
-    item(L, 'rangeHood', 350, 20 + 25, { width: 80, finish: 'steel' });
-    item(L, 'wallCabinet', 440, 20 + 17.5, { width: 60, ...n, accent: 'steel' });
-    item(L, 'wallCabinet', 540, 20 + 17.5, { width: 74, ...n, accent: 'steel' });
-    x = 310;
-    for (const [kind, w] of [['dishwasher', 60], ['baseCabinet', 60], ['sinkCabinet', 90], ['drawerCabinet', 57]] as const) {
-      item(L, kind, x + w / 2, 331 - 30, { ...n, width: w, rotation: 180 });
-      x += w;
-    }
+    addKitchen(items, L);
 
     // Dining
     item(L, 'diningTable', 226, 652, { width: 186, depth: 80 });
@@ -179,10 +167,6 @@ export function mittHusTemplate(): Project {
       item(L, 'chair', cx, 706, { rotation: 180 });
     }
     item(L, 'pendantLamp', 226, 652, { elevation: 155 });
-    // Reading corner by the west window
-    item(L, 'armchair', 60, 97, { rotation: 270, width: 78, depth: 75 });
-    item(L, 'roundTable', 67, 162, { width: 50, depth: 50, height: 55 });
-    item(L, 'armchair', 60, 239, { rotation: 270, width: 78, depth: 75 });
     // Living: corner sofa, coffee table, armchair, wood stove chimney
     item(L, 'sofa', 736, 385, { name: 'Hjørnesofa (del 1)', width: 270, depth: 80 });
     item(L, 'sofa', 831, 477, { name: 'Hjørnesofa (del 2)', rotation: 90, width: 110, depth: 80 });
@@ -337,6 +321,79 @@ export function mittHusTemplate(): Project {
   addTerrace(p, et1.id);
   p.settings.defaultWallThickness = 10;
   return p;
+}
+
+/**
+ * Kitchen after the owner's mood board: putty-painted shaker cabinets with brass knobs and cup pulls,
+ * marble worktops, cream zellige, a cream range cooker under a painted mantel hood, a farmhouse sink
+ * under the north window, and a window seat between a side cupboard and a coffee hutch at the
+ * north-west window. Seen from the hall door, the ranges run west towards the window seat.
+ * Positions are real cm, measured from the finished wall faces.
+ */
+function addKitchen(items: Item[], L: string) {
+  const k: Partial<Item> = { finish: 'putty-front', accent: 'marble', frontStyle: 'shaker', hardware: 'brass' };
+  const add = (kind: string, x: number, y: number, o: Partial<Item> = {}) => items.push(createItem(L, kind, x, y, { ...k, ...o }));
+  const nFace = 10 * SY + 10; // inside of the north wall
+  const wFace = 10 * SX + 10; // inside of the west wall
+  const eFace = 583 * SX - 6; // kitchen side of the hall wall
+  const sFace = 337 * SY - 6; // kitchen side of the wall towards the living room
+  const sEnd = 300 * SX; // where that wall ends in the west
+  const winN = 442 * SX; // centre of the north window (90 wide)
+  const winW = (779 - 611) * SY; // centre of the north-west window (150 wide)
+
+  // North run, west to east: blind corner, cupboard, farmhouse sink centred under the window, dishwasher, spice pull-out
+  let x = winN - 40 - 60 - 60;
+  const x0 = x;
+  const north = (kind: string, w: number, o: Partial<Item> = {}) => {
+    add(kind, x + w / 2, nFace + 30, { width: w, ...o });
+    x += w;
+  };
+  north('cornerCabinet', 60, { name: 'Hjørneskap' });
+  north('baseCabinet', 60);
+  north('farmhouseSink', 80, { name: 'Oppvaskbenk (keramisk kum)' });
+  north('dishwasher', 60, { name: 'Oppvaskmaskin (integrert)' });
+  north('drawerCabinet', eFace - x, { name: 'Krydderuttrekk' });
+  // Peninsula of drawers facing the working aisle, with painted end panels
+  add('drawerCabinet', x0 + 30, nFace + 100, { name: 'Halvøy (skuffer)', width: 80, rotation: 270 });
+  add('box', x0 - 1, nFace + 70, { name: 'Sidepanel', width: 2, depth: 140, height: 86 });
+  add('box', x0 + 30, nFace + 141, { name: 'Endepanel', width: 62, depth: 2, height: 86 });
+  // Zellige behind the north run, kept below the window
+  const tile = { finish: 'zellige-cream', accent: 'zellige-cream', depth: 1.5, elevation: 90 };
+  add('wallPanel', (x0 + winN - 45) / 2, nFace + 0.75, { ...tile, width: winN - 45 - x0, height: 60 });
+  add('wallPanel', winN, nFace + 0.75, { ...tile, width: 90, height: 15 });
+  add('wallPanel', (winN + 45 + eFace) / 2, nFace + 0.75, { ...tile, width: eFace - winN - 45, height: 60 });
+  add('potRail', (winN + 45 + eFace) / 2, nFace + 6, { width: 70, depth: 12, height: 45, elevation: 152, finish: 'brass', accent: 'copper' });
+
+  // South run, west to east: integrated fridge, oven tower, range cooker under the mantel hood, drawers
+  x = sEnd;
+  const south = (kind: string, w: number, d: number, o: Partial<Item> = {}) => {
+    add(kind, x + w / 2, sFace - d / 2, { width: w, depth: d, rotation: 180, ...o });
+    x += w;
+  };
+  south('tallCabinet', 60, 60, { name: 'Integrert kjøleskap', height: 230 });
+  south('ovenTower', 60, 60, { name: 'Stekeovn / mikro', height: 230, accent: 'black-glass' });
+  const rangeX = x + 50;
+  south('classicRange', 100, 65, { finish: 'enamel-cream', accent: 'brass' });
+  const drawersX = x;
+  south('drawerCabinet', eFace - x, 60);
+  add('mantelHood', rangeX, sFace - 27.5, { width: 100, depth: 55, height: 90, elevation: 150, rotation: 180, accent: 'anthracite' });
+  add('wallCabinet', (drawersX + eFace) / 2, sFace - 17.5, { width: eFace - drawersX, depth: 35, height: 88, elevation: 145, rotation: 180 });
+  add('wallPanel', (rangeX - 50 + eFace) / 2, sFace - 0.75, { ...tile, width: eFace - rangeX + 50, height: 60, rotation: 180 });
+
+  // North-west window: coffee hutch in the corner, window seat under the window, side cupboard
+  const hutchW = winW - 75 - nFace - 2;
+  add('hutch', wFace + 27.5, nFace + hutchW / 2, { name: 'Kaffeskap', width: hutchW, depth: 55, height: 230, rotation: 270 });
+  add('coffeeMachine', wFace + 22, nFace + hutchW / 2, { elevation: 90, rotation: 270, finish: 'steel', accent: 'black-metal', frontStyle: undefined });
+  const seatA = nFace + hutchW;
+  const seatW = 2 * (winW - seatA);
+  add('windowSeat', wFace + 25, winW, { name: 'Vindusbenk', width: seatW, depth: 50, height: 50, rotation: 270, accent: 'fabric-beige' });
+  add('baseCabinet', wFace + 25, seatA + seatW + 30, { name: 'Sideskap', width: 60, depth: 50, rotation: 270 });
+  add('framedPicture', wFace + 1.5, seatA + seatW + 30, { width: 40, depth: 3, height: 52, elevation: 125, rotation: 270, finish: 'oak', accent: 'paint-offwhite', frontStyle: undefined });
+
+  // Schoolhouse pendants over the aisle and the window seat
+  const lamp = { finish: 'brass', accent: 'light-panel', frontStyle: undefined, hardware: undefined };
+  add('schoolhousePendant', winN, (nFace + sFace) / 2, { ...lamp, height: 55, elevation: 185 });
+  add('schoolhousePendant', wFace + 110, winW, { ...lamp, height: 65, elevation: 175 });
 }
 
 /**

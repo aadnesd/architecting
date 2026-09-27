@@ -102,6 +102,10 @@ export interface Item {
   locked?: boolean;
   /** Tilt in degrees around the object's width axis (e.g. roof windows following the roof slope). */
   tilt?: number;
+  /** Cabinet fronts: flat slab doors (default) or shaker frame-and-panel with knobs and cup pulls. */
+  frontStyle?: 'flat' | 'shaker';
+  /** Metal for handles, knobs and taps on cabinets and fixtures (default stainless steel). */
+  hardware?: MaterialRef;
 }
 
 export type RoofType = 'flat' | 'shed' | 'gable' | 'hip' | 'gambrel' | 'mansard';

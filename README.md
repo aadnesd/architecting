@@ -8,6 +8,8 @@ It runs fully locally: no account, no server. Projects are autosaved in the brow
 
 ![House with gable roof, terrace and garden](docs/screenshot-house.png)
 
+![Shaker kitchen with window seat, from the Mitt hus template](docs/mitt-hus-kitchen.png)
+
 ## Features
 
 **Floor plan (2D)**
@@ -29,7 +31,8 @@ It runs fully locally: no account, no server. Projects are autosaved in the brow
 **3D view**
 - Live 3D model with sun and sky, soft shadows, reflections and a procedural material library: wood floors, herringbone, tiles, marble, terrazzo, brick, wood cladding, render, roof tiles, slate, standing seam, grass and more. You can also pick any custom colour.
 - Around 70 parametric objects:
-  - Kitchen: base, drawer, sink, cooktop and corner units, wall and tall units, oven tower, fridge, range, hood, island, worktop, backsplash, stools
+  - Kitchen: base, drawer, sink, cooktop and corner units, wall and tall units, oven tower, fridge, range, hood, island, worktop, backsplash, stools, farmhouse sink, classic range cooker, painted mantel hood, hutch with open shelves, pot rail, espresso machine
+  - Cabinets and furniture can have flat or **shaker** fronts, with handles and taps in steel, brass, black and other metals
   - Bathroom: toilets, vanities, basins, built-in and freestanding tubs, shower enclosure, walk-in screen, mirror cabinet, towel radiator, washing machine
   - Living, dining, bedroom, office and lighting furniture, with lamps that emit light
   - Structure: stairs, columns, beams, slabs, generic box/cylinder, radiators

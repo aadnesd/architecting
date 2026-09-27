@@ -10,6 +10,9 @@ import { uid } from '../model/factory';
 import { buildRoofGeometry } from '../geometry/roof';
 import { Copy, FlipHorizontal, Lock, RotateCw, Scissors, Trash2, Unlock } from 'lucide-react';
 
+/** Items with doors or drawers, whose front style and hardware can be chosen. */
+const FRONTED = new Set(['baseCabinet', 'drawerCabinet', 'cornerCabinet', 'sinkCabinet', 'farmhouseSink', 'cooktopCabinet', 'dishwasher', 'wallCabinet', 'tallCabinet', 'ovenTower', 'hutch', 'windowSeat', 'vanity', 'doubleVanity', 'nightstand', 'dresser', 'wardrobe', 'tvUnit']);
+
 type Coll = 'walls' | 'openings' | 'rooms' | 'items' | 'roofs' | 'dimensions' | 'labels';
 
 function useUpdater<T extends { id: string }>(coll: Coll, id: string) {
@@ -250,6 +253,23 @@ function ItemProps({ item }: { item: Item }) {
         <Field label="Accent" hint="Worktop, handles, frame, cushions… depending on the object">
           <MaterialPicker value={item.accent} onChange={(v) => up({ accent: v })} />
         </Field>
+        {FRONTED.has(item.kind) && (
+          <>
+            <Field label="Front style">
+              <Select<'flat' | 'shaker'>
+                value={item.frontStyle ?? 'flat'}
+                options={[
+                  { value: 'flat', label: 'Flat (slab)' },
+                  { value: 'shaker', label: 'Shaker (frame and panel)' },
+                ]}
+                onChange={(v) => up({ frontStyle: v })}
+              />
+            </Field>
+            <Field label="Handles and taps">
+              <MaterialPicker value={item.hardware ?? 'steel'} onChange={(v) => up({ hardware: v })} groups={['Metal & glass']} />
+            </Field>
+          </>
+        )}
       </Section>
       <div className="actions">
         <button className="btn" onClick={() => up({ rotation: (item.rotation + 90) % 360 })} disabled={dis} title="Rotate 90° (R)">

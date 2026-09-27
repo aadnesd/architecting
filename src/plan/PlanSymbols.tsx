@@ -23,6 +23,7 @@ export function ItemSymbol({ item, px, selected }: { item: Item; px: number; sel
 
   switch (item.kind) {
     case 'sinkCabinet':
+    case 'farmhouseSink':
       detail = (
         <>
           <rect x={-Math.min(hw - 8, 30)} y={-hd + 10} width={Math.min(w - 16, 60)} height={d - 22} rx={6} {...common} />
@@ -32,6 +33,7 @@ export function ItemSymbol({ item, px, selected }: { item: Item; px: number; sel
       break;
     case 'cooktopCabinet':
     case 'range':
+    case 'classicRange':
       detail = (
         <>
           {[
@@ -61,6 +63,8 @@ export function ItemSymbol({ item, px, selected }: { item: Item; px: number; sel
       break;
     case 'wallCabinet':
     case 'rangeHood':
+    case 'mantelHood':
+    case 'potRail':
     case 'openShelf':
     case 'mirrorCabinet':
     case 'beam':

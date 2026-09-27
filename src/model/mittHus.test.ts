@@ -38,9 +38,37 @@ describe('Mitt hus template', () => {
 
   it('has sensible room sizes', () => {
     const area = (name: string) => Math.abs(polygonArea(p.rooms.find((r) => r.name === name)!.points)) / 10000;
-    expect(area('Kjøkken')).toBeGreaterThan(7);
-    expect(area('Kjøkken')).toBeLessThan(9);
-    expect(area('Stue / spisestue')).toBeGreaterThan(38);
-    expect(area('Stue / spisestue')).toBeLessThan(45);
+    expect(area('Kjøkken')).toBeGreaterThan(14);
+    expect(area('Kjøkken')).toBeLessThan(17);
+    expect(area('Stue / spisestue')).toBeGreaterThan(30);
+    expect(area('Stue / spisestue')).toBeLessThan(36);
+  });
+
+  it('fits the kitchen between its walls with room to walk', () => {
+    const et1 = level('1. etasje');
+    const units = p.items.filter((i) => i.levelId === et1.id && i.finish === 'putty-front');
+    expect(units.length).toBeGreaterThan(10);
+    const box = (i: (typeof units)[number]) => {
+      const side = i.rotation % 180 !== 0;
+      const [w, d] = side ? [i.depth, i.width] : [i.width, i.depth];
+      return { x0: i.x - w / 2, x1: i.x + w / 2, y0: i.y - d / 2, y1: i.y + d / 2 };
+    };
+    // Inside faces of the west, north and hall walls, and of the wall towards the living room
+    for (const i of units) {
+      const b = box(i);
+      expect(b.x0).toBeGreaterThanOrEqual(19);
+      expect(b.y0).toBeGreaterThanOrEqual(19);
+      expect(b.x1).toBeLessThanOrEqual(551.5);
+      expect(b.y1).toBeLessThanOrEqual(314.5);
+    }
+    // At least 90 cm between the peninsula and the tall units opposite it
+    const peninsula = box(units.find((i) => i.name === 'Halvøy (skuffer)')!);
+    const fridge = box(units.find((i) => i.name === 'Integrert kjøleskap')!);
+    expect(fridge.y0 - peninsula.y1).toBeGreaterThanOrEqual(90);
+    // The farmhouse sink sits under the north window
+    const sink = units.find((i) => i.kind === 'farmhouseSink')!;
+    const north = p.walls.find((w) => w.levelId === et1.id && w.thickness === 20 && w.a.y < 20 && w.b.y < 20 && w.b.x > w.a.x)!;
+    const win = p.openings.find((o) => o.wallId === north.id)!;
+    expect(Math.abs(north.a.x + win.offset - sink.x)).toBeLessThan(2);
   });
 });

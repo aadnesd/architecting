@@ -45,6 +45,12 @@ export const CATALOG: CatalogItem[] = [
   { kind: 'countertop', name: 'Worktop', category: 'Kitchen', width: 120, depth: 62, height: 4, elevation: 86, finish: 'oak', accent: 'oak', wallSnap: true },
   { kind: 'wallPanel', name: 'Backsplash / wall panel', category: 'Kitchen', width: 120, depth: 1, height: 60, elevation: 90, finish: 'subway-white', accent: 'subway-white', wallSnap: true, tags: 'tiles splashback' },
   { kind: 'barStool', name: 'Bar stool', category: 'Kitchen', width: 40, depth: 40, height: 75, finish: 'oak', accent: 'black-metal' },
+  { kind: 'farmhouseSink', name: 'Farmhouse sink cabinet', category: 'Kitchen', width: 80, depth: 60, height: 90, finish: 'white-matte', accent: 'marble', wallSnap: true, tags: 'apron belfast butler ceramic' },
+  { kind: 'classicRange', name: 'Classic range cooker', category: 'Kitchen', width: 100, depth: 65, height: 92, finish: 'enamel-cream', accent: 'brass', wallSnap: true, tags: 'lacanche la cornue range cooker oven' },
+  { kind: 'mantelHood', name: 'Mantel hood (painted)', category: 'Kitchen', width: 100, depth: 55, height: 90, elevation: 150, finish: 'putty-front', accent: 'anthracite', wallSnap: true, tags: 'canopy chimney' },
+  { kind: 'hutch', name: 'Hutch with open shelves', category: 'Kitchen', width: 70, depth: 55, height: 230, finish: 'putty-front', accent: 'marble', wallSnap: true, tags: 'dresser coffee station pantry' },
+  { kind: 'potRail', name: 'Pot rail with pans', category: 'Kitchen', width: 90, depth: 12, height: 45, elevation: 150, finish: 'brass', accent: 'copper', wallSnap: true, tags: 'copper pans hanging' },
+  { kind: 'coffeeMachine', name: 'Espresso machine & grinder', category: 'Kitchen', width: 45, depth: 38, height: 40, finish: 'steel', accent: 'black-metal', tags: 'coffee' },
 
   // Bathroom
   { kind: 'toilet', name: 'Toilet', category: 'Bathroom', width: 38, depth: 68, height: 78, finish: 'ceramic-white', accent: 'chrome', wallSnap: true, tags: 'wc' },
@@ -66,6 +72,8 @@ export const CATALOG: CatalogItem[] = [
   { kind: 'armchair', name: 'Armchair', category: 'Living', width: 85, depth: 85, height: 80, finish: 'fabric-green', accent: 'oak' },
   { kind: 'coffeeTable', name: 'Coffee table', category: 'Living', width: 120, depth: 60, height: 42, finish: 'oak', accent: 'black-metal' },
   { kind: 'tvUnit', name: 'TV bench', category: 'Living', width: 180, depth: 42, height: 50, finish: 'walnut', accent: 'black-metal', wallSnap: true },
+  { kind: 'windowSeat', name: 'Window seat with drawers', category: 'Living', width: 160, depth: 50, height: 50, finish: 'putty-front', accent: 'fabric-beige', wallSnap: true, tags: 'bench cushion storage nook' },
+  { kind: 'framedPicture', name: 'Framed picture', category: 'Living', width: 45, depth: 3, height: 60, elevation: 130, finish: 'oak', accent: 'paint-offwhite', wallSnap: true, tags: 'art print' },
   { kind: 'tv', name: 'TV 65"', category: 'Living', width: 145, depth: 6, height: 84, elevation: 90, finish: 'black-glass', accent: 'black-metal', wallSnap: true },
   { kind: 'bookshelf', name: 'Bookshelf', category: 'Living', width: 100, depth: 35, height: 200, finish: 'oak', accent: 'oak', wallSnap: true },
   { kind: 'rug', name: 'Rug', category: 'Living', width: 240, depth: 170, height: 1, finish: 'fabric-beige', accent: 'fabric-beige' },
@@ -90,6 +98,7 @@ export const CATALOG: CatalogItem[] = [
 
   // Lighting
   { kind: 'pendantLamp', name: 'Pendant lamp', category: 'Lighting', width: 40, depth: 40, height: 80, elevation: 170, finish: 'black-metal', accent: 'light-panel' },
+  { kind: 'schoolhousePendant', name: 'Schoolhouse pendant', category: 'Lighting', width: 30, depth: 30, height: 80, elevation: 160, finish: 'brass', accent: 'light-panel', tags: 'opal glass' },
   { kind: 'ceilingLight', name: 'Ceiling light', category: 'Lighting', width: 40, depth: 40, height: 8, elevation: 242, finish: 'white-matte', accent: 'light-panel' },
   { kind: 'floorLamp', name: 'Floor lamp', category: 'Lighting', width: 40, depth: 40, height: 160, finish: 'black-metal', accent: 'fabric-beige' },
   { kind: 'wallLight', name: 'Wall light', category: 'Lighting', width: 20, depth: 12, height: 20, elevation: 180, finish: 'brass', accent: 'light-panel', wallSnap: true },
