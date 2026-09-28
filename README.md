@@ -43,7 +43,8 @@ It runs fully locally: no account, no server. Projects are autosaved in the brow
 
 **Output**
 - Schedule / bill of quantities: rooms with areas, doors & windows, furniture grouped by type with sizes and finishes. Exports to CSV.
-- Export the 3D render as PNG, the 3D model as **GLB** (open it in Blender, SketchUp, Unreal…), the floor plan as **SVG**, or **print** the plan / save it as PDF.
+- Export the 3D render as PNG, the 3D model as **GLB** (Blender, Unreal, Twinmotion…) or **COLLADA .dae** for SketchUp, the floor plan as **SVG**, or **print** the plan / save it as PDF. Model exports always contain the whole building and garden, whatever the current view shows.
+  - **SketchUp:** File → Import → COLLADA (*.dae). The model comes in at real size (metres), with each piece of furniture as its own group named after it, and one material per finish. Materials are flat colours; the wood, tile and brick patterns are not included (use GLB in Blender for textures).
 - Units: millimetres, centimetres, metres, inches or feet-and-inches. Every measurement field accepts units and arithmetic.
 
 ## Realistic rendering
@@ -64,7 +65,7 @@ There are two quality levels inside the app:
 
 *Kitchen template rendered in-app with the path tracer (draft quality, 32 samples). Higher sample counts remove the grain.*
 
-For the last step to magazine-grade images, export **GLB** to Blender (Cycles) or D5 Render.
+For the last step to magazine-grade images, export **GLB** to Blender (Cycles) or D5 Render, or **DAE** to SketchUp and render with V-Ray or Enscape.
 
 ### Post-production, AI enhancement and video
 

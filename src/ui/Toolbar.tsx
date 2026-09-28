@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useStore, type ToolId, type ViewMode } from '../store/store';
 import { TEMPLATES } from '../model/templates';
-import { exportGLB, exportPlanSVG, exportRenderPNG, openProjectFile, printPlan, saveProjectFile } from '../io/files';
+import { exportDAE, exportGLB, exportPlanSVG, exportRenderPNG, openProjectFile, printPlan, saveProjectFile } from '../io/files';
 
 function Menu({ label, icon, children }: { label: string; icon: React.ReactNode; children: (close: () => void) => React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -134,7 +134,10 @@ export default function Toolbar({ onError }: { onError: (msg: string) => void })
               <Image size={14} /> 3D view screenshot (PNG)
             </button>
             <button onClick={() => (close(), guard(() => exportGLB(project.name)))}>
-              <Box size={14} /> 3D model (GLB for Blender, SketchUp…)
+              <Box size={14} /> 3D model (GLB for Blender, Unreal…)
+            </button>
+            <button onClick={() => (close(), guard(() => exportDAE(project.name)))}>
+              <Box size={14} /> 3D model for SketchUp (DAE)
             </button>
             <button onClick={() => (close(), guard(() => exportPlanSVG(project, levelId)))}>
               <FileDown size={14} /> Floor plan as SVG

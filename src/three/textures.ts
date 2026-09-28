@@ -407,6 +407,9 @@ export function getMaterial(ref: MaterialRef, variant = ''): THREE.MeshStandardM
     opacity: def.opacity ?? 1,
     side: variant === 'double' ? THREE.DoubleSide : THREE.FrontSide,
   });
+  // Named after the finish so exported models (GLB, DAE) show readable material names
+  m.name = def.name;
+  m.userData.ref = ref;
   if (def.emissive) {
     m.emissive = new THREE.Color(def.emissive);
     m.emissiveIntensity = 1.2;

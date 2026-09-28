@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { Project } from '../model/types';
@@ -52,16 +53,50 @@ export function exportRenderPNG(name: string) {
   gl.domElement.toBlob((b) => b && download(`${safe(name)}-3d.png`, b), 'image/png');
 }
 
+/**
+ * Runs an export with every level shown and no dollhouse or cutaway, so the file holds the whole
+ * building rather than the current view, then puts the view back.
+ */
+async function withWholeModel<T>(fn: (root: THREE.Object3D) => T | Promise<T>): Promise<T> {
+  if (!registry.content) throw new Error('Open the 3D view first');
+  const st = useStore.getState();
+  const saved = { ...st.options };
+  // Selection outlines use shader materials that exporters can't store.
+  st.clearSelection();
+  st.setOption('allLevels3D', true);
+  st.setOption('dollhouse', false);
+  st.setOption('cutaway', false);
+  await new Promise((r) => setTimeout(r, 300));
+  try {
+    const root = registry.content;
+    if (!root) throw new Error('Open the 3D view first');
+    return await fn(root);
+  } finally {
+    useStore.setState({ options: { ...useStore.getState().options, allLevels3D: saved.allLevels3D, dollhouse: saved.dollhouse, cutaway: saved.cutaway } });
+  }
+}
+
+/** Readable names for exported objects: items by their name, other parts by their type. */
+function exportName(o: THREE.Object3D): string | undefined {
+  const m = /^(\w+):(.+)$/.exec(o.name);
+  if (!m) return o.name || undefined;
+  const p = useStore.getState().project;
+  if (m[1] === 'item') return p.items.find((i) => i.id === m[2])?.name ?? 'Item';
+  if (m[1] === 'room') return p.rooms.find((r) => r.id === m[2])?.name || 'Floor';
+  return m[1][0].toUpperCase() + m[1].slice(1);
+}
+
 export async function exportGLB(name: string) {
-  const root = registry.content;
-  if (!root) throw new Error('Open the 3D view first');
-  // Selection outlines use shader materials that glTF can't store.
-  useStore.getState().clearSelection();
-  await new Promise((r) => setTimeout(r, 100));
   const { GLTFExporter } = await import('three/examples/jsm/exporters/GLTFExporter.js');
-  const exporter = new GLTFExporter();
-  const result = await exporter.parseAsync(root, { binary: true, onlyVisible: true });
+  const result = await withWholeModel((root) => new GLTFExporter().parseAsync(root, { binary: true, onlyVisible: true }));
   download(`${safe(name)}.glb`, new Blob([result as ArrayBuffer], { type: 'model/gltf-binary' }));
+}
+
+/** COLLADA for SketchUp (File → Import → COLLADA), which can't read GLB. */
+export async function exportDAE(name: string) {
+  const { toCollada } = await import('./collada');
+  const dae = await withWholeModel((root) => toCollada(root, { title: name, nameOf: exportName }));
+  download(`${safe(name)}.dae`, new Blob([dae], { type: 'model/vnd.collada+xml' }));
 }
 
 /** Plan of one level as a standalone SVG string (1 unit = 1 cm). */
