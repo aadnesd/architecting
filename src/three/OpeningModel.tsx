@@ -167,7 +167,7 @@ export function OpeningModel({ wall, opening }: { wall: Wall; opening: Opening }
 
   const trimmed = opening.kind !== 'archway' && opening.kind !== 'pocketDoor';
   return (
-    <group position={[cx * M, opening.sill * M, cy * M]} rotation={[0, -angle, 0]} userData={{ selectable: { type: 'opening', id: opening.id } }}>
+    <group name={`opening:${opening.id}`} position={[cx * M, opening.sill * M, cy * M]} rotation={[0, -angle, 0]} userData={{ selectable: { type: 'opening', id: opening.id } }}>
       {body}
       {trimmed && <Trim w={W} h={H} T={T} m={frame} bottom={false} />}
     </group>

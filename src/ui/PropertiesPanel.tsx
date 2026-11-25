@@ -8,7 +8,23 @@ import { formatArea, formatLength } from '../geometry/units';
 import { OPENING_PRESETS, isDoorKind } from '../model/catalog';
 import { uid } from '../model/factory';
 import { buildRoofGeometry } from '../geometry/roof';
-import { Copy, FlipHorizontal, Lock, RotateCw, Scissors, Trash2, Unlock } from 'lucide-react';
+import { Copy, FlipHorizontal, Lock, RotateCw, Ruler, Scissors, Trash2, Unlock } from 'lucide-react';
+
+/** Prints or downloads the elevation of one wall, from the side with the most furniture. */
+function elevation(wallId: string, as: 'print' | 'svg') {
+  const p = useStore.getState().project;
+  void import('../drawing/sheets').then((m) => {
+    const sheet = m.wallElevationSheet(p, wallId);
+    if (as === 'print') m.printSheets(`${p.name} – elevation`, [sheet]);
+    else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([sheet], { type: 'image/svg+xml' }));
+      a.download = `${p.name.replace(/[^\p{L}\p{N}_ -]+/gu, '_')}-elevation.svg`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+  });
+}
 
 /** Items with doors or drawers, whose front style and hardware can be chosen. */
 const FRONTED = new Set(['baseCabinet', 'drawerCabinet', 'cornerCabinet', 'sinkCabinet', 'farmhouseSink', 'cooktopCabinet', 'dishwasher', 'wallCabinet', 'tallCabinet', 'ovenTower', 'hutch', 'windowSeat', 'vanity', 'doubleVanity', 'nightstand', 'dresser', 'wardrobe', 'tvUnit']);
@@ -117,6 +133,12 @@ function WallProps({ wall }: { wall: Wall }) {
           }
         >
           <Scissors size={14} /> Split
+        </button>
+        <button className="btn" title="Elevation drawing of this wall (A3, print or save as PDF)" onClick={() => elevation(wall.id, 'print')}>
+          <Ruler size={14} /> Elevation
+        </button>
+        <button className="btn" title="Elevation drawing as SVG" onClick={() => elevation(wall.id, 'svg')}>
+          SVG
         </button>
         <DeleteButton />
       </div>

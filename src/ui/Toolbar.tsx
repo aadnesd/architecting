@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useStore, type ToolId, type ViewMode } from '../store/store';
 import { TEMPLATES } from '../model/templates';
-import { exportDAE, exportGLB, exportPlanSVG, exportRenderPNG, openProjectFile, printPlan, saveProjectFile } from '../io/files';
+import { exportDAE, exportFreeCAD, exportGLB, exportPlanSVG, exportRenderPNG, openProjectFile, printPlan, saveProjectFile } from '../io/files';
 
 function Menu({ label, icon, children }: { label: string; icon: React.ReactNode; children: (close: () => void) => React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -139,8 +139,14 @@ export default function Toolbar({ onError }: { onError: (msg: string) => void })
             <button onClick={() => (close(), guard(() => exportDAE(project.name)))}>
               <Box size={14} /> 3D model for SketchUp (DAE)
             </button>
+            <button onClick={() => (close(), guard(() => exportFreeCAD(project.name)))}>
+              <Box size={14} /> 3D model for FreeCAD (macro)
+            </button>
             <button onClick={() => (close(), guard(() => exportPlanSVG(project, levelId)))}>
               <FileDown size={14} /> Floor plan as SVG
+            </button>
+            <button onClick={() => (close(), guard(() => import('../drawing/sheets').then((m) => m.printDrawingSet(project, levelId))))}>
+              <Ruler size={14} /> Drawings: plan + wall elevations (A3 PDF)
             </button>
             <button onClick={() => (close(), guard(() => printPlan(project, levelId)))}>
               <Printer size={14} /> Print floor plan / PDF

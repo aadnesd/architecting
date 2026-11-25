@@ -14,6 +14,8 @@ function boxGeo(w: number, h: number, d: number) {
   let g = geoCache.get(key);
   if (!g) {
     g = planarUV(new THREE.BoxGeometry(Math.max(w, 0.001), Math.max(h, 0.001), Math.max(d, 0.001)).toNonIndexed());
+    // Remembered so CAD exports can rebuild it as a true box
+    g.userData.prim = { type: 'box', w: Math.max(w, 0.001), h: Math.max(h, 0.001), d: Math.max(d, 0.001) };
     geoCache.set(key, g);
   }
   return g;
@@ -36,6 +38,7 @@ function taperGeo(w0: number, w1: number, h: number, d: number) {
   if (!g) {
     const shape = new THREE.Shape([new THREE.Vector2(-w0 / 2, 0), new THREE.Vector2(w0 / 2, 0), new THREE.Vector2(w1 / 2, h), new THREE.Vector2(-w1 / 2, h)]);
     g = planarUV(new THREE.ExtrudeGeometry(shape, { depth: d, bevelEnabled: false }).toNonIndexed());
+    g.userData.prim = { type: 'taper', w0, w1, h, d };
     geoCache.set(key, g);
   }
   return g;

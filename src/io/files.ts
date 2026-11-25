@@ -7,7 +7,7 @@ import { registry } from '../three/registry';
 import { polygonArea, polygonPerimeter, bbox } from '../geometry/math';
 import { wallLength } from '../geometry/walls';
 import { materialName } from '../model/materials';
-import { getOpeningPreset } from '../model/catalog';
+import { getCatalogItem, getOpeningPreset } from '../model/catalog';
 import { PlanContent } from '../plan/PlanView';
 import { itemCorners } from '../plan/snapping';
 import { useStore } from '../store/store';
@@ -90,6 +90,49 @@ export async function exportGLB(name: string) {
   const { GLTFExporter } = await import('three/examples/jsm/exporters/GLTFExporter.js');
   const result = await withWholeModel((root) => new GLTFExporter().parseAsync(root, { binary: true, onlyVisible: true }));
   download(`${safe(name)}.glb`, new Blob([result as ArrayBuffer], { type: 'model/gltf-binary' }));
+}
+
+/** FreeCAD macro that rebuilds the model as native FreeCAD objects (see io/freecad.ts). */
+export async function exportFreeCAD(name: string) {
+  const { toFreeCADMacro } = await import('./freecad');
+  const out = await withWholeModel((root) => toFreeCADMacro(root, name, freecadNaming()));
+  download(`${safe(name)}.FCMacro`, new Blob([out.py], { type: 'text/x-python' }));
+  return out;
+}
+
+/** Groups by level and kind, labels from the project, one App::Part per item, door and window. */
+export function freecadNaming() {
+  const p = useStore.getState().project;
+  const parse = (o: THREE.Object3D) => /^(\w+):(.+)$/.exec(o.name);
+  const levelName = (id?: string) => p.levels.find((l) => l.id === id)?.name ?? 'Level';
+  return {
+    isItem: (o: THREE.Object3D) => /^(item|opening):/.test(o.name),
+    labelOf: (o: THREE.Object3D) => {
+      const m = parse(o);
+      if (!m) return undefined;
+      if (m[1] === 'opening') return getOpeningPreset(p.openings.find((x) => x.id === m[2])?.kind ?? 'window').name;
+      return exportName(o);
+    },
+    groupOf: (o: THREE.Object3D) => {
+      const m = parse(o);
+      if (!m) return undefined;
+      const [kind, id] = [m[1], m[2]];
+      if (kind === 'item') {
+        const it = p.items.find((i) => i.id === id);
+        const cat = it ? getCatalogItem(it.kind)?.category : undefined;
+        return [levelName(it?.levelId), cat === 'Exterior' ? 'Garden' : cat === 'Structure' ? 'Structure' : 'Furniture and fittings'];
+      }
+      if (kind === 'opening') {
+        const op = p.openings.find((x) => x.id === id);
+        const w = p.walls.find((x) => x.id === op?.wallId);
+        return [levelName(w?.levelId), 'Doors and windows'];
+      }
+      if (kind === 'wall') return [levelName(p.walls.find((w) => w.id === id)?.levelId), 'Walls'];
+      if (kind === 'room') return [levelName(p.rooms.find((r) => r.id === id)?.levelId), 'Floors'];
+      if (kind === 'roof') return [levelName(p.roofs.find((r) => r.id === id)?.levelId), 'Roofs'];
+      return undefined;
+    },
+  };
 }
 
 /** COLLADA for SketchUp (File → Import → COLLADA), which can't read GLB. */
